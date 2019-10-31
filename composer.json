@@ -1,0 +1,33 @@
+{
+  "name": "webstack/api-platform-global-search-bundle",
+  "license": "MIT",
+  "type": "symfony-bundle",
+  "description": "Bundle to add global search support for Doctrine ORM to API Platform",
+  "homepage": "https://webstack.nl",
+  "authors": [
+    {
+      "name": "Webstack B.V.",
+      "email": "support@webstack.nl"
+    }
+  ],
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "require": {
+    "php": ">=7.2.0",
+    "api-platform/api-pack": "^1.2",
+    "doctrine/doctrine-bundle": "^1.10",
+    "doctrine/orm": "~2.6.3",
+    "ramsey/uuid-doctrine": "^1.5"
+  },
+  "autoload": {
+    "psr-4": {
+      "Webstack\\ApiPlatformGlobalSearchBundle\\": ""
+    }
+  },
+  "scripts": {
+    "auto-scripts": {
+      "cache:clear": "symfony-cmd",
+      "assets:install %PUBLIC_DIR%": "symfony-cmd"
+    }
+  }
+}

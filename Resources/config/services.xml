@@ -1,0 +1,15 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service id="api_platform.doctrine.orm.global_search_filter" class="Webstack\ApiPlatformGlobalSearchBundle\Filter\GlobalSearchFilter" public="false" abstract="true">
+            <argument type="service" id="doctrine" />
+            <argument>null</argument>
+            <argument type="service" id="logger" on-invalid="ignore" />
+        </service>
+        <service id="Webstack\ApiPlatformGlobalSearchBundle\Filter\GlobalSearchFilter" alias="api_platform.doctrine.orm.global_search_filter" />
+    </services>
+</container>
