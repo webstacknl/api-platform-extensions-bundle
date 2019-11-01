@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Webstack\ApiPlatformGlobalSearchBundle\DependencyInjection;
+namespace Webstack\ApiPlatformExtensionsBundle\DependencyInjection;
 
 use Exception;
 use Symfony\Component\Config\FileLocator;
@@ -11,9 +11,9 @@ use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 
 /**
- * Class WebstackApiPlatformUuidFilterExtension
+ * Class WebstackApiPlatformExtensionsExtension
  */
-class WebstackApiPlatformGlobalSearchExtension extends Extension
+class WebstackApiPlatformExtensionsExtension extends Extension
 {
     /**
      * @param array $configs

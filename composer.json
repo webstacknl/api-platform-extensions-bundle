@@ -1,8 +1,8 @@
 {
-  "name": "webstack/api-platform-global-search-bundle",
+  "name": "webstack/api-platform-extensions-bundle",
   "license": "MIT",
   "type": "symfony-bundle",
-  "description": "Bundle to add global search support for Doctrine ORM to API Platform",
+  "description": "Bundle to add uuid filter, or search and global search support for Doctrine ORM to API Platform",
   "homepage": "https://webstack.nl",
   "authors": [
     {
@@ -21,7 +21,7 @@
   },
   "autoload": {
     "psr-4": {
-      "Webstack\\ApiPlatformGlobalSearchBundle\\": ""
+      "Webstack\\ApiPlatformExtensionsBundle\\": ""
     }
   },
   "scripts": {

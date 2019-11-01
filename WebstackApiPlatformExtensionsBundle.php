@@ -6,7 +6,10 @@ namespace Webstack\ApiPlatformGlobalSearchBundle;
 
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
-class WebstackApiPlatformGlobalSearchBundle extends Bundle
+/**
+ * Class WebstackApiPlatformExtensionsBundle
+ */
+class WebstackApiPlatformExtensionsBundle extends Bundle
 {
 
 }
