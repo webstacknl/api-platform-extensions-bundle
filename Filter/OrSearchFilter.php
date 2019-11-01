@@ -66,10 +66,6 @@ class OrSearchFilter extends AbstractOrFilter
 
             $queryBuilder->andWhere(call_user_func_array([$queryBuilder->expr(), 'orX'], $orX));
         }
-
-//        var_dump($queryBuilder->getDQL());
-//
-//        die();
     }
 
     /**
