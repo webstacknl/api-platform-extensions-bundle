@@ -1,1 +1,1 @@
-# api-platform-global-search
+# api-platform-extensions
