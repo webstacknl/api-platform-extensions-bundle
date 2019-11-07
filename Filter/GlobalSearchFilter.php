@@ -51,14 +51,15 @@ class GlobalSearchFilter extends AbstractOrFilter
             $allowedProperties = array_intersect($allowedProperties, $searchProperties);
         }
 
-        $alias = $queryBuilder->getRootAliases()[0];
+        $rootAlias = $queryBuilder->getRootAliases()[0];
         $orX = [];
 
         foreach ($allowedProperties as $allowedProperty) {
             $field = $allowedProperty;
+            $alias = $rootAlias;
 
             if ($this->isPropertyNested($allowedProperty, $resourceClass)) {
-                [$alias, $field] = $this->addJoinsForNestedProperty($allowedProperty, $alias, $queryBuilder,
+                [$alias, $field] = $this->addJoinsForNestedProperty($allowedProperty, $rootAlias, $queryBuilder,
                     $queryNameGenerator,
                     $resourceClass);
             }
