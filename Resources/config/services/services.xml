@@ -25,5 +25,18 @@
             <argument type="service" id="logger" on-invalid="ignore" />
         </service>
         <service id="Webstack\ApiPlatformExtensionsBundle\Filter\UuidFilter" alias="api_platform.doctrine.orm.uuid_filter" />
+
+        <service id="webstack_api_platform_extension.controller.me" class="Webstack\ApiPlatformExtensionsBundle\EventListener\MeListener" public="false">
+            <argument type="service" id="security.helper" />
+            <argument type="service" id="api_platform.negotiator" />
+            <argument>%api_platform.formats%</argument>
+            <tag name="kernel.event_listener" event="kernel.request" method="onKernelRequest" priority="5" />
+        </service>
+
+        <service id="webstack_api_platform_extension.swagger.decorator" class="Webstack\ApiPlatformExtensionsBundle\Swagger\SwaggerDecorator" public="false" decorates="api_platform.swagger.normalizer.api_gateway">
+            <argument type="service" id="webstack_api_platform_extension.swagger.decorator.inner" />
+            <argument>%api_platform.formats%</argument>
+        </service>
+        <service id="Webstack\ApiPlatformExtensionsBundle\Swagger\SwaggerDecorator" alias="webstack_api_platform_extension.swagger.decorator" />
     </services>
 </container>
