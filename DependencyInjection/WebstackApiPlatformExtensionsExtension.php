@@ -22,6 +22,11 @@ class WebstackApiPlatformExtensionsExtension extends Extension
      */
     public function load(array $configs, ContainerBuilder $container): void
     {
+        $configuration = new Configuration();
+        $config = $this->processConfiguration($configuration, $configs);
+
+        $container->setParameter('webstack.api_platform_extensions.identifier_class', $config['identifier_class']);
+
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config/services'));
         $loader->load('services.xml');
     }
