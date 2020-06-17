@@ -38,7 +38,6 @@ class UuidFilter extends AbstractContextAwareFilter
             return;
         }
 
-
         $alias = $queryBuilder->getRootAliases()[0];
         $field = $property;
 
@@ -48,12 +47,6 @@ class UuidFilter extends AbstractContextAwareFilter
         }
 
         $valueParameter = $queryNameGenerator->generateParameterName($field);
-
-        preg_match('/[a-f\d]{8}(-[a-f\d]{4}){4}[a-f\d]{8}$/i', $value, $match);
-
-        if (!empty($match[0])) {
-            $value = $match[0];
-        }
 
         if (is_array($value)) {
             $uuidFactory = new UuidFactory();
