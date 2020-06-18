@@ -88,7 +88,7 @@ final class MeListener
 
         if ($user instanceof UserInterface) {
             $class = get_class($user);
-            $id = $class->getId();
+            $id = $user->getId();
         } else {
             $subject = $this->getSubject($this->security->getToken());
 
