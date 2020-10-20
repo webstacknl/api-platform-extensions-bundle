@@ -43,7 +43,7 @@ class UuidFilter extends AbstractContextAwareFilter
 
         if ($this->isPropertyNested($property, $resourceClass)) {
             [$alias, $field] = $this->addJoinsForNestedProperty($property, $alias, $queryBuilder, $queryNameGenerator,
-                $resourceClass);
+                                                                $resourceClass);
         }
 
         $valueParameter = $queryNameGenerator->generateParameterName($field);
@@ -55,9 +55,21 @@ class UuidFilter extends AbstractContextAwareFilter
             $queryBuilder
                 ->andWhere(sprintf('%s.%s IN (:%s)', $alias, $field, $valueParameter))
                 ->setParameter($valueParameter, array_map(static function ($uuid) use ($uuidFactory) {
+                    preg_match('/[a-f\d]{8}(-[a-f\d]{4}){4}[a-f\d]{8}$/i', $uuid, $match);
+
+                    if (!empty($match[0])) {
+                        $uuid = $match[0];
+                    }
+
                     return $uuidFactory->fromString($uuid)->getBytes();
                 }, $value));
         } else {
+            preg_match('/[a-f\d]{8}(-[a-f\d]{4}){4}[a-f\d]{8}$/i', $value, $match);
+
+            if (!empty($match[0])) {
+                $value = $match[0];
+            }
+
             $queryBuilder
                 ->andWhere(sprintf('%s.%s IN (:%s)', $alias, $field, $valueParameter))
                 ->setParameter($valueParameter, $value, 'uuid_binary_ordered_time');
