@@ -16,7 +16,7 @@
     "php": ">=7.3.0",
     "api-platform/api-pack": "^1.2",
     "doctrine/doctrine-bundle": "^1.10",
-    "doctrine/orm": "~2.6.3",
+    "doctrine/orm": "~2.6",
     "ramsey/uuid-doctrine": "^1.5"
   },
   "autoload": {
