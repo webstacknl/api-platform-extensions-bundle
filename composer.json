@@ -15,8 +15,8 @@
   "require": {
     "php": ">=7.3.0",
     "api-platform/api-pack": "^1.2",
-    "doctrine/doctrine-bundle": "^1.10",
-    "doctrine/orm": "~2.6",
+    "doctrine/doctrine-bundle": "^1.10|^2.0",
+    "doctrine/orm": "~2.6|~3.0",
     "ramsey/uuid-doctrine": "^1.5"
   },
   "autoload": {
