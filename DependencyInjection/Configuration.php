@@ -5,17 +5,18 @@ namespace Webstack\ApiPlatformExtensionsBundle\DependencyInjection;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
+/**
+ * Class Configuration
+ */
 class Configuration implements ConfigurationInterface
 {
-
     /**
-     * @inheritDoc
+     * @return TreeBuilder
      */
     public function getConfigTreeBuilder(): TreeBuilder
     {
-        $treeBuilder = new TreeBuilder();
-
-        $rootNode = $treeBuilder->root('webstack_api_platform_extensions');
+        $treeBuilder = new TreeBuilder('webstack_api_platform_extensions');
+        $rootNode = $treeBuilder->getRootNode();
 
         $rootNode->addDefaultsIfNotSet()
             ->children()
