@@ -10,30 +10,12 @@ use Doctrine\ORM\QueryBuilder;
 use Ramsey\Uuid\Codec\OrderedTimeCodec;
 use Ramsey\Uuid\UuidFactory;
 
-/**
- * Class UuidFilter
- */
 class UuidFilter extends AbstractContextAwareFilter
 {
-    /**
-     * @param string $property
-     * @param $value
-     * @param QueryBuilder $queryBuilder
-     * @param QueryNameGeneratorInterface $queryNameGenerator
-     * @param string $resourceClass
-     * @param string|null $operationName
-     */
-    protected function filterProperty(
-        string $property,
-        $value,
-        QueryBuilder $queryBuilder,
-        QueryNameGeneratorInterface $queryNameGenerator,
-        string $resourceClass,
-        string $operationName = null
-    ): void {
+    protected function filterProperty(string $property, $value, QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass, string $operationName = null): void
+    {
         if (
-            !$this->isPropertyEnabled($property, $resourceClass) ||
-            !$this->isPropertyMapped($property, $resourceClass)
+            !$this->isPropertyEnabled($property, $resourceClass) || !$this->isPropertyMapped($property, $resourceClass)
         ) {
             return;
         }
@@ -42,8 +24,7 @@ class UuidFilter extends AbstractContextAwareFilter
         $field = $property;
 
         if ($this->isPropertyNested($property, $resourceClass)) {
-            [$alias, $field] = $this->addJoinsForNestedProperty($property, $alias, $queryBuilder, $queryNameGenerator,
-                                                                $resourceClass);
+            [$alias, $field] = $this->addJoinsForNestedProperty($property, $alias, $queryBuilder, $queryNameGenerator, $resourceClass);
         }
 
         $valueParameter = $queryNameGenerator->generateParameterName($field);
@@ -76,10 +57,6 @@ class UuidFilter extends AbstractContextAwareFilter
         }
     }
 
-    /**
-     * @param string $resourceClass
-     * @return array
-     */
     public function getDescription(string $resourceClass): array
     {
         $description = [];
@@ -95,7 +72,7 @@ class UuidFilter extends AbstractContextAwareFilter
                 continue;
             }
 
-            $filterParameterNames = [$property, $property . '[]'];
+            $filterParameterNames = [$property, $property.'[]'];
 
             foreach ($filterParameterNames as $filterParameterName) {
                 $description[$filterParameterName] = [
@@ -103,7 +80,7 @@ class UuidFilter extends AbstractContextAwareFilter
                     'type' => 'uuid',
                     'required' => false,
                     'strategy' => 'exact',
-                    'is_collection' => '[]' === substr((string)$filterParameterName, -2),
+                    'is_collection' => '[]' === substr((string) $filterParameterName, -2),
                     'swagger' => [
                         'type' => 'uuid',
                     ],

@@ -7,32 +7,13 @@ namespace Webstack\ApiPlatformExtensionsBundle\Filter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use Doctrine\ORM\QueryBuilder;
 
-/**
- * Class OrSearchFilter
- */
 class OrSearchFilter extends AbstractOrFilter
 {
     public const OR_SEARCH_QUERY_PARAMETER_NAME = '_search';
 
-    /**
-     * @param string $property
-     * @param $value
-     * @param QueryBuilder $queryBuilder
-     * @param QueryNameGeneratorInterface $queryNameGenerator
-     * @param string $resourceClass
-     * @param string|null $operationName
-     * @param array $context
-     */
-    protected function filterProperty(
-        string $property,
-        $value,
-        QueryBuilder $queryBuilder,
-        QueryNameGeneratorInterface $queryNameGenerator,
-        string $resourceClass,
-        string $operationName = null,
-        array $context = []
-    ): void {
-        if ($property !== self::OR_SEARCH_QUERY_PARAMETER_NAME) {
+    protected function filterProperty(string $property, $value, QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass, string $operationName = null, array $context = []): void
+    {
+        if (self::OR_SEARCH_QUERY_PARAMETER_NAME !== $property) {
             return;
         }
 
@@ -40,7 +21,7 @@ class OrSearchFilter extends AbstractOrFilter
             $searchProperties = $context['filters'][self::OR_SEARCH_QUERY_PARAMETER_NAME];
             $allowedProperties = array_keys($this->getProperties());
 
-            if (!empty($searchProperties)) {
+            if (0 !== count($searchProperties)) {
                 $allowedProperties = array_intersect($allowedProperties, array_keys($searchProperties));
             }
 
@@ -68,10 +49,6 @@ class OrSearchFilter extends AbstractOrFilter
         }
     }
 
-    /**
-     * @param string $resourceClass
-     * @return array
-     */
     public function getDescription(string $resourceClass): array
     {
         $description = [];
@@ -87,7 +64,7 @@ class OrSearchFilter extends AbstractOrFilter
                 continue;
             }
 
-            $propertyKey = self::OR_SEARCH_QUERY_PARAMETER_NAME. '[' . $property . '][]';
+            $propertyKey = self::OR_SEARCH_QUERY_PARAMETER_NAME.'['.$property.'][]';
 
             $description[$propertyKey] = [
                 'property' => $propertyKey,
