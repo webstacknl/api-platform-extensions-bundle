@@ -1,0 +1,7 @@
+parameters:
+	level: 1
+	paths:
+		- src
+	parallel:
+		processTimeout: 300.0
+	checkGenericClassInNonGenericObjectType: false
