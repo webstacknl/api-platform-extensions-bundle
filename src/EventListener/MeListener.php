@@ -6,65 +6,34 @@ namespace Webstack\ApiPlatformExtensionsBundle\EventListener;
 
 use ApiPlatform\Core\Api\FormatMatcher;
 use ApiPlatform\Core\Util\ClassInfoTrait;
-use App\Entity\Relation;
-use App\Security\TokenCredentialsHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\Query\ResultSetMappingBuilder;
+use Negotiation\Exception\Exception as NeogationException;
 use Negotiation\Negotiator;
+use ReflectionClass;
+use ReflectionException;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
-use Symfony\Component\Security\Core\User\UserInterface;
-use Trikoder\Bundle\OAuth2Bundle\Security\Authentication\Token\OAuth2Token;
-use Webstack\ApiPlatformExtensionsBundle\Util\MimeType\MimeTypeFlattener;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Exception\NotAcceptableHttpException;
 use Symfony\Component\Security\Core\Security;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Trikoder\Bundle\OAuth2Bundle\Security\Authentication\Token\OAuth2Token;
+use Webstack\ApiPlatformExtensionsBundle\Util\MimeType\MimeTypeFlattener;
 
-/**
- * Class MeListener
- */
 final class MeListener
 {
     use ClassInfoTrait;
 
-    /**
-     * @var Security
-     */
-    private $security;
+    private Security $security;
+    private EntityManagerInterface $entityManager;
+    private Negotiator $negotiator;
+    private ParameterBagInterface $parameterBag;
+    private array $formats;
 
-    /**
-     * @var EntityManagerInterface
-     */
-    private $entityManager;
-
-    /**
-     * @var Negotiator
-     */
-    private $negotiator;
-
-    /**
-     * @var array
-     */
-    private $formats;
-
-    /**
-     * @var ParameterBagInterface
-     */
-    private $parameterBag;
-
-    /**
-     * MeListener constructor.
-     *
-     * @param Security $security
-     * @param EntityManagerInterface $entityManager
-     * @param Negotiator $negotiator
-     * @param ParameterBagInterface $parameterBag
-     * @param array $formats
-     */
-    public function __construct(Security $security, EntityManagerInterface $entityManager, Negotiator $negotiator, ParameterBagInterface $parameterBag,  array $formats = [])
+    public function __construct(Security $security, EntityManagerInterface $entityManager, Negotiator $negotiator, ParameterBagInterface $parameterBag, array $formats = [])
     {
         $this->security = $security;
         $this->entityManager = $entityManager;
@@ -74,7 +43,10 @@ final class MeListener
     }
 
     /**
-     * @param RequestEvent $event
+     * @throws ReflectionException
+     * @throws NonUniqueResultException
+     * @throws NoResultException
+     * @throws NeogationException
      */
     public function onKernelRequest(RequestEvent $event): void
     {
@@ -84,6 +56,11 @@ final class MeListener
             return;
         }
 
+        if (null === $this->security->getToken()) {
+            return;
+        }
+
+        /** @var UserInterface $user */
         $user = $this->security->getToken()->getUser();
 
         if ($user instanceof UserInterface) {
@@ -94,10 +71,6 @@ final class MeListener
 
             $id = $subject->getId();
             $class = $this->getObjectClass($subject);
-        }
-
-        if (null === $class) {
-            throw new UnauthorizedHttpException();
         }
 
         $format = $this->getFormatFromRequest($request);
@@ -111,16 +84,18 @@ final class MeListener
     }
 
     /**
-     * @return
+     * @throws ReflectionException
+     * @throws NoResultException
+     * @throws NonUniqueResultException
      */
-    public function getSubject(OAuth2Token $token)
+    public function getSubject(OAuth2Token $token): object
     {
         $class = $this->parameterBag->get('webstack.api_platform_extensions.identifier_class');
 
         $rsm = new ResultSetMappingBuilder($this->entityManager);
         $rsm->addRootEntityFromClassMetadata($class, 'subject');
 
-        $reflectionClass = new \ReflectionClass($class);
+        $reflectionClass = new ReflectionClass($class);
         $class = strtolower($reflectionClass->getShortName());
 
         $query = $this->entityManager->createNativeQuery(sprintf('
@@ -136,44 +111,32 @@ final class MeListener
 
         $query->setParameter('identifier', $token->getCredentials());
 
-        try {
-            return $query->getSingleResult();
-        } catch (NoResultException | NonUniqueResultException $e) {
-            return null;
-        }
+        return $query->getSingleResult();
     }
 
     /**
-     * @param Request $request
-     * @return string|null
+     * @throws NeogationException
      */
     private function getFormatFromRequest(Request $request): ?string
     {
         $flattenedMimeTypes = MimeTypeFlattener::flatten($this->formats);
+
         $mimeTypes = array_keys($flattenedMimeTypes);
 
         $formatMatcher = new FormatMatcher($this->formats);
+
         $accept = $request->headers->get('Accept');
 
-        if (null === $mediaType = $this->negotiator->getBest($accept, $mimeTypes)) {
+        if (null === ($mediaType = $this->negotiator->getBest($accept, $mimeTypes))) {
             throw $this->getNotAcceptableHttpException($accept, $flattenedMimeTypes);
         }
 
         return $formatMatcher->getFormat($mediaType->getType());
     }
 
-    /**
-     * @param string $accept
-     * @param array $mimeTypes
-     *
-     * @return NotAcceptableHttpException
-     */
     private function getNotAcceptableHttpException(string $accept, array $mimeTypes): NotAcceptableHttpException
     {
-        return new NotAcceptableHttpException(sprintf(
-            'Requested format "%s" is not supported. Supported MIME types are "%s".',
-            $accept,
-            implode('", "', array_keys($mimeTypes))
+        return new NotAcceptableHttpException(sprintf('Requested format "%s" is not supported. Supported MIME types are "%s".', $accept, implode('", "', array_keys($mimeTypes))
         ));
     }
 }

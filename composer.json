@@ -10,18 +10,29 @@
       "email": "support@webstack.nl"
     }
   ],
-  "minimum-stability": "dev",
-  "prefer-stable": true,
   "require": {
-    "php": ">=7.3.0",
-    "api-platform/api-pack": "^1.2",
-    "doctrine/doctrine-bundle": "^1.10|^2.0",
-    "doctrine/orm": "~2.6|~3.0",
-    "ramsey/uuid-doctrine": "^1.5"
+    "php": "^7.4|^8.0",
+    "api-platform/core": "^2.6",
+    "doctrine/orm": "^2.11",
+    "ramsey/uuid-doctrine": "^1.8",
+    "symfony/security-bundle": "^5.4|^6.0",
+    "symfony/serializer": "^5.4|^6.0",
+    "trikoder/oauth2-bundle": "^3.2"
+  },
+  "require-dev": {
+    "friendsofphp/php-cs-fixer": "^3.5",
+    "phpstan/extension-installer": "^1.1",
+    "phpstan/phpstan": "^1.2",
+    "phpstan/phpstan-doctrine": "^1.0",
+    "phpstan/phpstan-symfony": "^1.0",
+    "roave/security-advisories": "dev-latest"
+  },
+  "config": {
+    "sort-packages": true
   },
   "autoload": {
     "psr-4": {
-      "Webstack\\ApiPlatformExtensionsBundle\\": ""
+      "Webstack\\ApiPlatformExtensionsBundle\\": "src/"
     }
   },
   "scripts": {

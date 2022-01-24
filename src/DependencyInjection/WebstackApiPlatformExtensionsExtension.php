@@ -10,14 +10,9 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 
-/**
- * Class WebstackApiPlatformExtensionsExtension
- */
 class WebstackApiPlatformExtensionsExtension extends Extension
 {
     /**
-     * @param array $configs
-     * @param ContainerBuilder $container
      * @throws Exception
      */
     public function load(array $configs, ContainerBuilder $container): void
@@ -27,7 +22,7 @@ class WebstackApiPlatformExtensionsExtension extends Extension
 
         $container->setParameter('webstack.api_platform_extensions.identifier_class', $config['identifier_class']);
 
-        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config/services'));
+        $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config/services'));
         $loader->load('services.xml');
     }
 }

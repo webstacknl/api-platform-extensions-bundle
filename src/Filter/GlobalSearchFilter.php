@@ -7,33 +7,14 @@ namespace Webstack\ApiPlatformExtensionsBundle\Filter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use Doctrine\ORM\QueryBuilder;
 
-/**
- * Class GlobalSearchFilter
- */
 class GlobalSearchFilter extends AbstractOrFilter
 {
     public const GLOBAL_SEARCH_QUERY_PARAMETER_NAME = '_global_search';
     public const GLOBAL_SEARCH_QUERY_PROPERTIES_PARAMETER_NAME = '_global_search.properties';
 
-    /**
-     * @param string $property
-     * @param $value
-     * @param QueryBuilder $queryBuilder
-     * @param QueryNameGeneratorInterface $queryNameGenerator
-     * @param string $resourceClass
-     * @param string|null $operationName
-     * @param array $context
-     */
-    protected function filterProperty(
-        string $property,
-        $value,
-        QueryBuilder $queryBuilder,
-        QueryNameGeneratorInterface $queryNameGenerator,
-        string $resourceClass,
-        string $operationName = null,
-        array $context = []
-    ): void {
-        if ($property !== self::GLOBAL_SEARCH_QUERY_PARAMETER_NAME) {
+    protected function filterProperty(string $property, $value, QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass, string $operationName = null, array $context = []): void
+    {
+        if (self::GLOBAL_SEARCH_QUERY_PARAMETER_NAME !== $property) {
             return;
         }
 
@@ -73,10 +54,6 @@ class GlobalSearchFilter extends AbstractOrFilter
         $queryBuilder->andWhere(call_user_func_array([$queryBuilder->expr(), 'orX'], $orX));
     }
 
-    /**
-     * @param string $resourceClass
-     * @return array
-     */
     public function getDescription(string $resourceClass): array
     {
         $description = [];

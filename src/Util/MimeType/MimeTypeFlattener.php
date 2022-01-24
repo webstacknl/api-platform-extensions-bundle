@@ -1,18 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webstack\ApiPlatformExtensionsBundle\Util\MimeType;
 
-/**
- * Class MimeTypeFlattener
- */
 final class MimeTypeFlattener
 {
-    /**
-     * Returns the flattened list of MIME types.
-     *
-     * @param array $formats
-     * @return array
-     */
     public static function flatten(array $formats): array
     {
         $flattenedMimeTypes = [];
