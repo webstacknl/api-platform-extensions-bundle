@@ -16,8 +16,7 @@
     "doctrine/orm": "^2.11",
     "ramsey/uuid-doctrine": "^1.8",
     "symfony/security-bundle": "^5.4|^6.0",
-    "symfony/serializer": "^5.4|^6.0",
-    "trikoder/oauth2-bundle": "^3.2"
+    "symfony/serializer": "^5.4|^6.0"
   },
   "require-dev": {
     "friendsofphp/php-cs-fixer": "^3.5",
@@ -28,7 +27,10 @@
     "roave/security-advisories": "dev-latest"
   },
   "config": {
-    "sort-packages": true
+    "sort-packages": true,
+    "allow-plugins": {
+      "phpstan/extension-installer": true
+    }
   },
   "autoload": {
     "psr-4": {
