@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Webstack\ApiPlatformExtensionsBundle\Filter;
 
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Util\QueryNameGeneratorInterface;
+use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\ORM\QueryBuilder;
 
 class GlobalSearchFilter extends AbstractOrFilter
@@ -42,7 +43,9 @@ class GlobalSearchFilter extends AbstractOrFilter
             if ($this->isPropertyNested($allowedProperty, $resourceClass)) {
                 [$alias, $field] = $this->addJoinsForNestedProperty($allowedProperty, $rootAlias, $queryBuilder,
                     $queryNameGenerator,
-                    $resourceClass);
+                    $resourceClass,
+                    Join::LEFT_JOIN,
+                );
             }
 
             $valueParameter = $queryNameGenerator->generateParameterName($field);
