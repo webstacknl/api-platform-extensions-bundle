@@ -30,7 +30,7 @@ App\Entity\Transport\Region:
       - 'api.region.global_search_filter'
 ```
 
-Now when a user calls the API with ?search=foo, the query will become something like this:
+Now when a user calls the API with `?_global_search=foo`, the query will become something like this:
 
 ```sql
 SELECT 
@@ -45,6 +45,38 @@ WHERE
     r.name LIKE '%foo%' 
     OR d.description LIKE '%foo%'
 ```
+
+## AliasSearchFilter (`api_platform.doctrine.orm.alias_search_filter`)
+Works as the regular search filter, but lets you rename or alias (nested) properties in the URL.  Pass the properties and aliases as separate DI arguments:
+
+```yaml
+services:
+  api.some_entity.deeply_nested_prop_filter:
+    parent: 'api_platform.doctrine.orm.alias_search_filter'
+    arguments:
+      $properties:
+        deeply.nested.property: 'exact'
+      $aliases:
+        myProp: 'deeply.nested.property'
+    tags: [ { name: 'api_platform.filter' } ]
+```
+
+And apply it to the appropriate resource:
+```yaml
+App\Entity\SomeEntity:
+  attributes:
+    route_prefix: /some
+    filters:
+      - 'api.some_entity.deeply_nested_prop_filter'
+```
+
+Now to hit this filter, the URL using the default SearchFilter would be:
+
+    /some?deeply.nested.property=foo
+
+This alias search filter adds a new query string parameter that it'll map to the configured alias:
+
+    /some?myProp=foo
 
 ## OrSearchFilter (`api_platform.doctrine.orm.or_search_filter`)
 TODO
