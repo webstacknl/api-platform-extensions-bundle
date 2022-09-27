@@ -1,10 +1,30 @@
 # API Platform extensions bundle
-What is API Platform and how do we extend it?
+TODO: what is API Platform and how do we extend it?
 
-# Filters
+## Installing
+
+composer require webstack/api-platform-extensions-bundle:[version]
+
+## Configuring
+
+After installing the plugin you will need to add some config files to you're project:
+
+- config/packages/webstack_api_platform_extensions.yaml<br>
+<code>
+webstack_api_platform_extensions:<br>
+identifier_class: App\Entity\%UserEntity%
+</code>
+- config/routes/api_platform.yaml<br/>
+<code>
+  app_extra:<br/>
+  resource: '@WebstackApiPlatformExtensionsBundle/Resources/config/routing/routing.xml'
+  <br/>prefix: /api
+</code>
+
+## Filters
 These filters are added by this bundle:
 
-## GlobalSearchFilter (`api_platform.doctrine.orm.global_search_filter`)
+### GlobalSearchFilter (`api_platform.doctrine.orm.global_search_filter`)
 Searches (recursively?) through the specified columns (or all of them, scary stuff) of an entity on whose endpoint it's activated.
 
 Configure the filter as a service (`config/services/api_platform/search/[$domain/]$entity.yaml`):
@@ -46,7 +66,7 @@ WHERE
     OR d.description LIKE '%foo%'
 ```
 
-## AliasSearchFilter (`api_platform.doctrine.orm.alias_search_filter`)
+### AliasSearchFilter (`api_platform.doctrine.orm.alias_search_filter`)
 Works as the regular search filter, but lets you rename or alias (nested) properties in the URL.  Pass the properties and aliases as separate DI arguments:
 
 ```yaml
@@ -78,10 +98,10 @@ This alias search filter adds a new query string parameter that it'll map to the
 
     /some?myProp=foo
 
-## OrSearchFilter (`api_platform.doctrine.orm.or_search_filter`)
+### OrSearchFilter (`api_platform.doctrine.orm.or_search_filter`)
 TODO
 
-## UuidFilter (`api_platform.doctrine.orm.uuid_filter`)
+### UuidFilter (`api_platform.doctrine.orm.uuid_filter`)
 For looking up nested entities by their UUID, because API Platform doesn't support that (see https://github.com/api-platform/core/pull/3774, was reverted because it broke date search).
 
 Service configuration:
@@ -109,8 +129,8 @@ App\Entity\Transport\Position:
 
 Now the API caller can filter using `GET .../transport_positions?vehicle.id=$uuid`.
 
-# Routes
+## Routes
 The bundle introduces the following route(s):
 
-## `/me`
+### `/me`
 Get info about the caller. Includes a SwaggerDecorator to generate OpenAPI documentation about this endpoint.

@@ -18,9 +18,9 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Exception\NotAcceptableHttpException;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Trikoder\Bundle\OAuth2Bundle\Security\Authentication\Token\OAuth2Token;
 use Webstack\ApiPlatformExtensionsBundle\Util\MimeType\MimeTypeFlattener;
 
 final class MeListener
@@ -88,7 +88,7 @@ final class MeListener
      * @throws NoResultException
      * @throws NonUniqueResultException
      */
-    public function getSubject(OAuth2Token $token): object
+    public function getSubject(TokenInterface $token): object
     {
         $class = $this->parameterBag->get('webstack.api_platform_extensions.identifier_class');
 
