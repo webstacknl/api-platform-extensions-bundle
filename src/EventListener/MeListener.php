@@ -71,7 +71,7 @@ final class MeListener
             if (method_exists($class, 'getId')) {
                 $id = $user->getId();
             } else {
-                throw new RuntimeException(sprintf('Could not determine the user id, class %s must have a getId() method', $class));
+                throw new RuntimeException(sprintf('Could not determine the user id, class "%s" must have a getId() method', $class));
             }
         } else {
             $subject = $this->getSubject($this->security->getToken());
