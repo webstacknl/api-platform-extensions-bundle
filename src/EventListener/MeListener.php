@@ -14,6 +14,7 @@ use Negotiation\Exception\Exception as NeogationException;
 use Negotiation\Negotiator;
 use ReflectionClass;
 use ReflectionException;
+use RuntimeException;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
@@ -60,12 +61,18 @@ final class MeListener
             return;
         }
 
-        /** @var UserInterface $user */
         $user = $this->security->getToken()->getUser();
 
-        if ($user instanceof UserInterface) {
-            $class = get_class($user);
-            $id = $user->getId();
+        // League returns a NullUser instance when a non-user (e.g. client_credentials) is authenticated.
+        $class = get_class($user);
+        $isUser = $user instanceof UserInterface && $class !== 'League\Bundle\OAuth2ServerBundle\Security\User\NullUser';
+
+        if ($isUser) {
+            if (method_exists($class, 'getId')) {
+                $id = $user->getId();
+            } else {
+                throw new RuntimeException(sprintf('Could not determine the user id, class "%s" must have a getId() method', $class));
+            }
         } else {
             $subject = $this->getSubject($this->security->getToken());
 
