@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Webstack\ApiPlatformExtensionsBundle\EventListener;
 
-use ApiPlatform\Core\Api\FormatMatcher;
-use ApiPlatform\Core\Util\ClassInfoTrait;
+use ApiPlatform\Api\FormatMatcher;
+use ApiPlatform\Util\ClassInfoTrait;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
