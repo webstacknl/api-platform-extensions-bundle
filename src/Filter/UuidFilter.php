@@ -4,15 +4,17 @@ declare(strict_types=1);
 
 namespace Webstack\ApiPlatformExtensionsBundle\Filter;
 
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\AbstractContextAwareFilter;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Util\QueryNameGeneratorInterface;
+use ApiPlatform\Doctrine\Orm\Filter\AbstractFilter;
+use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
+use ApiPlatform\Metadata\Operation;
+use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\ORM\QueryBuilder;
 use Ramsey\Uuid\Codec\OrderedTimeCodec;
 use Ramsey\Uuid\UuidFactory;
 
-class UuidFilter extends AbstractContextAwareFilter
+class UuidFilter extends AbstractFilter
 {
-    protected function filterProperty(string $property, $value, QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass, string $operationName = null): void
+    protected function filterProperty(string $property, $value, QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass, Operation $operation = null, array $context = []): void
     {
         if (
             !$this->isPropertyEnabled($property, $resourceClass) || !$this->isPropertyMapped($property, $resourceClass)
@@ -24,7 +26,7 @@ class UuidFilter extends AbstractContextAwareFilter
         $field = $property;
 
         if ($this->isPropertyNested($property, $resourceClass)) {
-            [$alias, $field] = $this->addJoinsForNestedProperty($property, $alias, $queryBuilder, $queryNameGenerator, $resourceClass);
+            [$alias, $field] = $this->addJoinsForNestedProperty($property, $alias, $queryBuilder, $queryNameGenerator, $resourceClass, Join::INNER_JOIN);
         }
 
         $valueParameter = $queryNameGenerator->generateParameterName($field);
