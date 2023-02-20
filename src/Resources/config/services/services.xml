@@ -28,7 +28,7 @@
             <tag name="kernel.event_listener" event="kernel.request" method="onKernelRequest" priority="5" />
         </service>
 
-        <service id="webstack_api_platform_extension.swagger.decorator" class="Webstack\ApiPlatformExtensionsBundle\Swagger\SwaggerDecorator" public="false" decorates="api_platform.swagger.normalizer.api_gateway">
+        <service id="webstack_api_platform_extension.swagger.decorator" class="Webstack\ApiPlatformExtensionsBundle\Swagger\SwaggerDecorator" public="false" decorates="api_platform.openapi.normalizer.api_gateway">
             <argument type="service" id="webstack_api_platform_extension.swagger.decorator.inner" />
             <argument>%api_platform.formats%</argument>
         </service>
