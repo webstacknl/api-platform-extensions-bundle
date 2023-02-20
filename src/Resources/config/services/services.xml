@@ -12,20 +12,6 @@
         </service>
         <service id="Webstack\ApiPlatformExtensionsBundle\Filter\GlobalSearchFilter" alias="api_platform.doctrine.orm.global_search_filter" />
 
-        <service id="api_platform.doctrine.orm.alias_search_filter" class="Webstack\ApiPlatformExtensionsBundle\Filter\AliasSearchFilter" public="false" abstract="true">
-            <argument type="service" id="doctrine" />
-            <argument>null</argument>
-            <argument type="service" id="logger" on-invalid="ignore" />
-        </service>
-        <service id="Webstack\ApiPlatformExtensionsBundle\Filter\AliasSearchFilter" alias="api_platform.doctrine.orm.alias_search_filter" />
-
-        <service id="api_platform.doctrine.orm.or_search_filter" class="Webstack\ApiPlatformExtensionsBundle\Filter\OrSearchFilter" public="false" abstract="true">
-            <argument type="service" id="doctrine" />
-            <argument>null</argument>
-            <argument type="service" id="logger" on-invalid="ignore" />
-        </service>
-        <service id="Webstack\ApiPlatformExtensionsBundle\Filter\OrSearchFilter" alias="api_platform.doctrine.orm.or_search_filter" />
-
         <service id="api_platform.doctrine.orm.uuid_filter" class="Webstack\ApiPlatformExtensionsBundle\Filter\UuidFilter" public="false" abstract="true">
             <argument type="service" id="doctrine" />
             <argument>null</argument>

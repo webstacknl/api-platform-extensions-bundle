@@ -12,15 +12,12 @@ use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\Query\ResultSetMappingBuilder;
 use Negotiation\Exception\Exception as NeogationException;
 use Negotiation\Negotiator;
-use ReflectionClass;
-use ReflectionException;
-use RuntimeException;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Exception\NotAcceptableHttpException;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Webstack\ApiPlatformExtensionsBundle\Util\MimeType\MimeTypeFlattener;
 
@@ -44,7 +41,7 @@ final class MeListener
     }
 
     /**
-     * @throws ReflectionException
+     * @throws \ReflectionException
      * @throws NonUniqueResultException
      * @throws NoResultException
      * @throws NeogationException
@@ -57,21 +54,24 @@ final class MeListener
             return;
         }
 
-        if (null === $this->security->getToken()) {
+        if (!$this->security->getToken() instanceof TokenInterface) {
             return;
         }
 
         $user = $this->security->getToken()->getUser();
 
+        if (!$user instanceof UserInterface) {
+            return;
+        }
+
         // League returns a NullUser instance when a non-user (e.g. client_credentials) is authenticated.
         $class = get_class($user);
-        $isUser = $user instanceof UserInterface && $class !== 'League\Bundle\OAuth2ServerBundle\Security\User\NullUser';
 
-        if ($isUser) {
-            if (method_exists($class, 'getId')) {
+        if ('League\Bundle\OAuth2ServerBundle\Security\User\NullUser' !== $class) {
+            if (method_exists($user, 'getId')) {
                 $id = $user->getId();
             } else {
-                throw new RuntimeException(sprintf('Could not determine the user id, class "%s" must have a getId() method', $class));
+                throw new \RuntimeException(sprintf('Could not determine the user id, class "%s" must have a getId() method', $class));
             }
         } else {
             $subject = $this->getSubject($this->security->getToken());
@@ -91,7 +91,7 @@ final class MeListener
     }
 
     /**
-     * @throws ReflectionException
+     * @throws \ReflectionException
      * @throws NoResultException
      * @throws NonUniqueResultException
      */
@@ -102,7 +102,7 @@ final class MeListener
         $rsm = new ResultSetMappingBuilder($this->entityManager);
         $rsm->addRootEntityFromClassMetadata($class, 'subject');
 
-        $reflectionClass = new ReflectionClass($class);
+        $reflectionClass = new \ReflectionClass($class);
         $class = strtolower($reflectionClass->getShortName());
 
         $query = $this->entityManager->createNativeQuery(sprintf('

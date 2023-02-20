@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Webstack\ApiPlatformExtensionsBundle\Swagger;
 
-use ArrayObject;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Webstack\ApiPlatformExtensionsBundle\Util\MimeType\MimeTypeFlattener;
@@ -32,7 +31,7 @@ final class SwaggerDecorator implements NormalizerInterface
         return $docs;
     }
 
-    private function addMePaths(ArrayObject $paths): void
+    private function addMePaths(\ArrayObject $paths): void
     {
         $formats = array_flip(MimeTypeFlattener::flatten($this->formats));
 
