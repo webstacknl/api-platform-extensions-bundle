@@ -7,13 +7,20 @@ namespace Webstack\ApiPlatformExtensionsBundle\Filter;
 use ApiPlatform\Doctrine\Orm\Filter\AbstractFilter;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Operation;
+use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\ORM\QueryBuilder;
 use Ramsey\Uuid\Codec\OrderedTimeCodec;
 use Ramsey\Uuid\UuidFactory;
+use Ramsey\Uuid\UuidInterface;
+use Symfony\Bridge\Doctrine\Types\AbstractUidType;
 
 class UuidFilter extends AbstractFilter
 {
+    /**
+     * @throws Exception
+     */
     protected function filterProperty(string $property, $value, QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass, Operation $operation = null, array $context = []): void
     {
         if (
@@ -31,21 +38,34 @@ class UuidFilter extends AbstractFilter
 
         $valueParameter = $queryNameGenerator->generateParameterName($field);
 
+        $type = $this->managerRegistry->getManagerForClass($resourceClass)->getClassMetadata($resourceClass)->getTypeOfField($field);
+        $typeObject = Type::getType($type);
+
         if (is_array($value)) {
-            $uuidFactory = new UuidFactory();
-            $uuidFactory->setCodec(new OrderedTimeCodec($uuidFactory->getUuidBuilder()));
+            if ($typeObject instanceof AbstractUidType) {
+                $platform = $this->managerRegistry->getManagerForClass($resourceClass)->getConnection()->getDatabasePlatform();
 
-            $queryBuilder
-                ->andWhere(sprintf('%s.%s IN (:%s)', $alias, $field, $valueParameter))
-                ->setParameter($valueParameter, array_map(static function ($uuid) use ($uuidFactory) {
-                    preg_match('/[a-f\d]{8}(-[a-f\d]{4}){4}[a-f\d]{8}$/i', $uuid, $match);
+                $queryBuilder
+                    ->andWhere(sprintf('%s.%s IN (:%s)', $alias, $field, $valueParameter))
+                    ->setParameter($valueParameter, array_map(static function (string $uuid) use ($typeObject, $platform) {
+                        return $typeObject->convertToDatabaseValue($uuid, $platform);
+                    }, $value));
+            } elseif ($type instanceof UuidInterface) {
+                $uuidFactory = new UuidFactory();
+                $uuidFactory->setCodec(new OrderedTimeCodec($uuidFactory->getUuidBuilder()));
 
-                    if (!empty($match[0])) {
-                        $uuid = $match[0];
-                    }
+                $queryBuilder
+                    ->andWhere(sprintf('%s.%s IN (:%s)', $alias, $field, $valueParameter))
+                    ->setParameter($valueParameter, array_map(static function ($uuid) use ($uuidFactory) {
+                        preg_match('/[a-f\d]{8}(-[a-f\d]{4}){4}[a-f\d]{8}$/i', $uuid, $match);
 
-                    return $uuidFactory->fromString($uuid)->getBytes();
-                }, $value));
+                        if (!empty($match[0])) {
+                            $uuid = $match[0];
+                        }
+
+                        return $uuidFactory->fromString($uuid)->getBytes();
+                    }, $value));
+            }
         } else {
             preg_match('/[a-f\d]{8}(-[a-f\d]{4}){4}[a-f\d]{8}$/i', $value, $match);
 
@@ -55,7 +75,7 @@ class UuidFilter extends AbstractFilter
 
             $queryBuilder
                 ->andWhere(sprintf('%s.%s IN (:%s)', $alias, $field, $valueParameter))
-                ->setParameter($valueParameter, $value, 'uuid_binary_ordered_time');
+                ->setParameter($valueParameter, $value, $type);
         }
     }
 
@@ -74,7 +94,7 @@ class UuidFilter extends AbstractFilter
                 continue;
             }
 
-            $filterParameterNames = [$property, $property.'[]'];
+            $filterParameterNames = [$property, $property . '[]'];
 
             foreach ($filterParameterNames as $filterParameterName) {
                 $description[$filterParameterName] = [
@@ -82,7 +102,7 @@ class UuidFilter extends AbstractFilter
                     'type' => 'uuid',
                     'required' => false,
                     'strategy' => 'exact',
-                    'is_collection' => '[]' === substr((string) $filterParameterName, -2),
+                    'is_collection' => str_ends_with((string)$filterParameterName, '[]'),
                     'swagger' => [
                         'type' => 'uuid',
                     ],
