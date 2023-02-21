@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Webstack\ApiPlatformExtensionsBundle\Filter;
 
+use Doctrine\DBAL\Types\Type;
 use ApiPlatform\Doctrine\Orm\Filter\AbstractFilter;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Operation;
@@ -94,7 +95,7 @@ class UuidFilter extends AbstractFilter
                 continue;
             }
 
-            $filterParameterNames = [$property, $property.'[]'];
+            $filterParameterNames = [$property, $property . '[]'];
 
             foreach ($filterParameterNames as $filterParameterName) {
                 $description[$filterParameterName] = [
@@ -102,7 +103,7 @@ class UuidFilter extends AbstractFilter
                     'type' => 'uuid',
                     'required' => false,
                     'strategy' => 'exact',
-                    'is_collection' => '[]' === substr((string) $filterParameterName, -2),
+                    'is_collection' => str_ends_with((string)$filterParameterName, '[]'),
                     'swagger' => [
                         'type' => 'uuid',
                     ],
