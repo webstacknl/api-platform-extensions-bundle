@@ -12,7 +12,8 @@
   ],
   "require": {
     "php": "^7.4|^8.0",
-    "api-platform/core": "^2.6",
+    "api-platform/core": "2.6.*",
+    "doctrine/doctrine-bundle": "^2.6",
     "doctrine/orm": "^2.11",
     "ramsey/uuid-doctrine": "^1.8",
     "symfony/security-bundle": "^5.4|^6.0",
