@@ -31,21 +31,34 @@ class UuidFilter extends AbstractFilter
 
         $valueParameter = $queryNameGenerator->generateParameterName($field);
 
+        $type = $this->managerRegistry->getManagerForClass($resourceClass)->getClassMetadata($resourceClass)->getTypeOfField($field);
+        $typeObject = Type::getType($type);
+
         if (is_array($value)) {
-            $uuidFactory = new UuidFactory();
-            $uuidFactory->setCodec(new OrderedTimeCodec($uuidFactory->getUuidBuilder()));
+            if ($typeObject instanceof AbstractUidType) {
+                $platform = $this->managerRegistry->getManagerForClass($resourceClass)->getConnection()->getDatabasePlatform();
 
-            $queryBuilder
-                ->andWhere(sprintf('%s.%s IN (:%s)', $alias, $field, $valueParameter))
-                ->setParameter($valueParameter, array_map(static function ($uuid) use ($uuidFactory) {
-                    preg_match('/[a-f\d]{8}(-[a-f\d]{4}){4}[a-f\d]{8}$/i', $uuid, $match);
+                $queryBuilder
+                    ->andWhere(sprintf('%s.%s IN (:%s)', $alias, $field, $valueParameter))
+                    ->setParameter($valueParameter, array_map(static function (string $uuid) use ($typeObject, $platform) {
+                        return $typeObject->convertToDatabaseValue($uuid, $platform);
+                    }, $value));
+            } elseif ($type instanceof UuidInterface) {
+                $uuidFactory = new UuidFactory();
+                $uuidFactory->setCodec(new OrderedTimeCodec($uuidFactory->getUuidBuilder()));
 
-                    if (!empty($match[0])) {
-                        $uuid = $match[0];
-                    }
+                $queryBuilder
+                    ->andWhere(sprintf('%s.%s IN (:%s)', $alias, $field, $valueParameter))
+                    ->setParameter($valueParameter, array_map(static function ($uuid) use ($uuidFactory) {
+                        preg_match('/[a-f\d]{8}(-[a-f\d]{4}){4}[a-f\d]{8}$/i', $uuid, $match);
 
-                    return $uuidFactory->fromString($uuid)->getBytes();
-                }, $value));
+                        if (!empty($match[0])) {
+                            $uuid = $match[0];
+                        }
+
+                        return $uuidFactory->fromString($uuid)->getBytes();
+                    }, $value));
+            }
         } else {
             preg_match('/[a-f\d]{8}(-[a-f\d]{4}){4}[a-f\d]{8}$/i', $value, $match);
 
@@ -55,7 +68,7 @@ class UuidFilter extends AbstractFilter
 
             $queryBuilder
                 ->andWhere(sprintf('%s.%s IN (:%s)', $alias, $field, $valueParameter))
-                ->setParameter($valueParameter, $value, 'uuid_binary_ordered_time');
+                ->setParameter($valueParameter, $value, $type);
         }
     }
 
