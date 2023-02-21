@@ -7,13 +7,20 @@ namespace Webstack\ApiPlatformExtensionsBundle\Filter;
 use ApiPlatform\Doctrine\Orm\Filter\AbstractFilter;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Operation;
+use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\ORM\QueryBuilder;
 use Ramsey\Uuid\Codec\OrderedTimeCodec;
 use Ramsey\Uuid\UuidFactory;
+use Ramsey\Uuid\UuidInterface;
+use Symfony\Bridge\Doctrine\Types\AbstractUidType;
 
 class UuidFilter extends AbstractFilter
 {
+    /**
+     * @throws Exception
+     */
     protected function filterProperty(string $property, $value, QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass, Operation $operation = null, array $context = []): void
     {
         if (
