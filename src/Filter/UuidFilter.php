@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Webstack\ApiPlatformExtensionsBundle\Filter;
 
-use Doctrine\DBAL\Types\Type;
 use ApiPlatform\Doctrine\Orm\Filter\AbstractFilter;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Operation;
