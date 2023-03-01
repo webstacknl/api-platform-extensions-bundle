@@ -8,7 +8,6 @@ use ApiPlatform\Api\IriConverterInterface;
 use ApiPlatform\Doctrine\Common\Filter\SearchFilterInterface;
 use ApiPlatform\Doctrine\Common\Filter\SearchFilterTrait;
 use ApiPlatform\Doctrine\Orm\Filter\AbstractFilter;
-use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Exception\InvalidArgumentException;
 use ApiPlatform\Metadata\Operation;
@@ -65,6 +64,7 @@ class GlobalSearchFilter extends AbstractFilter implements SearchFilterInterface
         });
 
         $alias = $queryBuilder->getRootAliases()[0];
+        $orX = [];
 
         foreach ($allowedProperties as $allowedProperty) {
             $field = $allowedProperty;
@@ -100,9 +100,11 @@ class GlobalSearchFilter extends AbstractFilter implements SearchFilterInterface
                     return;
                 }
 
-                $this->addWhereByStrategy($strategy, $queryBuilder, $queryNameGenerator, $alias, $field, $values, $caseSensitive);
+                $orX[] = $this->addWhereByStrategy($strategy, $queryBuilder, $queryNameGenerator, $alias, $field, $values[0], $caseSensitive);
             }
         }
+
+        $queryBuilder->andWhere(call_user_func_array([$queryBuilder->expr(), 'orX'], $orX));
     }
 
     /**
@@ -110,68 +112,43 @@ class GlobalSearchFilter extends AbstractFilter implements SearchFilterInterface
      *
      * @throws InvalidArgumentException If strategy does not exist
      */
-    protected function addWhereByStrategy(string $strategy, QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $alias, string $field, mixed $values, bool $caseSensitive): ?QueryBuilder
+    protected function addWhereByStrategy(string $strategy, QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $alias, string $field, mixed $value, bool $caseSensitive)
     {
-        if (!\is_array($values)) {
-            $values = [$values];
-        }
-
         $wrapCase = $this->createWrapCase($caseSensitive);
-        $valueParameter = ':'.$queryNameGenerator->generateParameterName($field);
+        $valueParameter = ':' . $queryNameGenerator->generateParameterName($field);
         $aliasedField = sprintf('%s.%s', $alias, $field);
 
-        if (!$strategy || self::STRATEGY_EXACT === $strategy) {
-            if (1 === \count($values)) {
-                return $queryBuilder
-                    ->andWhere($queryBuilder->expr()->eq($wrapCase($aliasedField), $wrapCase($valueParameter)))
-                    ->setParameter($valueParameter, $values[0]);
-            }
+        $queryBuilder->setParameter($valueParameter, $caseSensitive ? $value : strtolower($value));
 
-            return $queryBuilder
-                ->andWhere($queryBuilder->expr()->in($wrapCase($aliasedField), $valueParameter))
-                ->setParameter($valueParameter, $caseSensitive ? $values : array_map('strtolower', $values));
+        if (self::STRATEGY_EXACT === $strategy) {
+            return $queryBuilder->expr()->eq($wrapCase($aliasedField), $wrapCase($valueParameter));
         }
 
-        $ors = [];
-        $parameters = [];
-        foreach ($values as $key => $value) {
-            $keyValueParameter = sprintf('%s_%s', $valueParameter, $key);
-            $parameters[] = [$caseSensitive ? $value : strtolower($value), $keyValueParameter];
-
-            $ors[] = match ($strategy) {
-                self::STRATEGY_PARTIAL => $queryBuilder->expr()->like(
+        return match ($strategy) {
+            self::STRATEGY_PARTIAL => $queryBuilder->expr()->like(
+                $wrapCase($aliasedField),
+                $wrapCase((string)$queryBuilder->expr()->concat("'%'", $valueParameter, "'%'"))
+            ),
+            self::STRATEGY_START => $queryBuilder->expr()->like(
+                $wrapCase($aliasedField),
+                $wrapCase((string)$queryBuilder->expr()->concat($valueParameter, "'%'"))
+            ),
+            self::STRATEGY_END => $queryBuilder->expr()->like(
+                $wrapCase($aliasedField),
+                $wrapCase((string)$queryBuilder->expr()->concat("'%'", $valueParameter))
+            ),
+            self::STRATEGY_WORD_START => $queryBuilder->expr()->orX(
+                $queryBuilder->expr()->like(
                     $wrapCase($aliasedField),
-                    $wrapCase((string) $queryBuilder->expr()->concat("'%'", $keyValueParameter, "'%'"))
+                    $wrapCase((string)$queryBuilder->expr()->concat($valueParameter, "'%'"))
                 ),
-                self::STRATEGY_START => $queryBuilder->expr()->like(
+                $queryBuilder->expr()->like(
                     $wrapCase($aliasedField),
-                    $wrapCase((string) $queryBuilder->expr()->concat($keyValueParameter, "'%'"))
-                ),
-                self::STRATEGY_END => $queryBuilder->expr()->like(
-                    $wrapCase($aliasedField),
-                    $wrapCase((string) $queryBuilder->expr()->concat("'%'", $keyValueParameter))
-                ),
-                self::STRATEGY_WORD_START => $queryBuilder->expr()->orX(
-                    $queryBuilder->expr()->like(
-                        $wrapCase($aliasedField),
-                        $wrapCase((string) $queryBuilder->expr()->concat($keyValueParameter, "'%'"))
-                    ),
-                    $queryBuilder->expr()->like(
-                        $wrapCase($aliasedField),
-                        $wrapCase((string) $queryBuilder->expr()->concat("'% '", $keyValueParameter, "'%'"))
-                    )
-                ),
-                default => throw new InvalidArgumentException(sprintf('strategy %s does not exist.', $strategy)),
-            };
-        }
-
-        $queryBuilder->orWhere($queryBuilder->expr()->orX(...$ors));
-
-        foreach ($parameters as $parameter) {
-            $queryBuilder->setParameter($parameter[1], $parameter[0]);
-        }
-
-        return $queryBuilder;
+                    $wrapCase((string)$queryBuilder->expr()->concat("'% '", $valueParameter, "'%'"))
+                )
+            ),
+            default => throw new InvalidArgumentException(sprintf('strategy %s does not exist.', $strategy)),
+        };
     }
 
     /**
