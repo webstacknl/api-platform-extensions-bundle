@@ -8,6 +8,7 @@ use ApiPlatform\Api\IriConverterInterface;
 use ApiPlatform\Doctrine\Common\Filter\SearchFilterInterface;
 use ApiPlatform\Doctrine\Common\Filter\SearchFilterTrait;
 use ApiPlatform\Doctrine\Orm\Filter\AbstractFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Exception\InvalidArgumentException;
 use ApiPlatform\Metadata\Operation;
@@ -19,6 +20,8 @@ use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 class GlobalSearchFilter extends AbstractFilter implements SearchFilterInterface
 {
     use SearchFilterTrait;
+
+    public const DOCTRINE_INTEGER_TYPE = Types::INTEGER;
 
     final public const GLOBAL_SEARCH_QUERY_PARAMETER_NAME = '_global_search';
 
