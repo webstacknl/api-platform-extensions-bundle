@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Webstack\ApiPlatformExtensionsBundle\EventListener;
 
 use ApiPlatform\Api\FormatMatcher;
-use ApiPlatform\Util\ClassInfoTrait;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
@@ -19,6 +18,7 @@ use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Exception\NotAcceptableHttpException;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Webstack\ApiPlatformExtensionsBundle\Util\ClassInfoTrait;
 use Webstack\ApiPlatformExtensionsBundle\Util\MimeType\MimeTypeFlattener;
 
 final class MeListener
