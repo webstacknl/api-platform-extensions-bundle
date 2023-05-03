@@ -9,17 +9,17 @@ composer require webstack/api-platform-extensions-bundle:[version]
 
 After installing the plugin you will need to add some config files to you're project:
 
-- config/packages/webstack_api_platform_extensions.yaml<br>
-<code>
-webstack_api_platform_extensions:<br>
-identifier_class: App\Entity\%UserEntity%
-</code>
-- config/routes/api_platform.yaml<br/>
-<code>
-  app_extra:<br/>
+- config/packages/webstack_api_platform_extensions.yaml
+```yaml
+webstack_api_platform_extensions:
+  identifier_class: App\Entity\%UserEntity%
+```
+- config/routes/api_platform.yaml
+```yaml
+app_extra:
   resource: '@WebstackApiPlatformExtensionsBundle/Resources/config/routing/routing.xml'
-  <br/>prefix: /api
-</code>
+  prefix: /api
+```
 
 ## Filters
 These filters are added by this bundle:
